@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flip Music</title>
+<meta name="description" content="为小尺寸折叠设备外屏设计的音乐播放器。支持 YouTube Music 与网易云音乐。">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<style>
+  :root {
+    --bg: #fbf7f8; --fg: #1b1416; --muted: #6f6266; --card: #ffffff; --line: #eee3e6;
+    --accent: #f0365f; --accent2: #ff7a86; --on-accent: #fff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0e0b0c; --fg: #f6eef0; --muted: #a89a9e; --card: #1a1517; --line: #2a2225; }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.6 -apple-system, "SF Pro Text", "PingFang SC", "HarmonyOS Sans SC", "MiSans", "Noto Sans SC", system-ui, sans-serif;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 20px; }
+  header.hero { padding: 72px 0 40px; display: grid; grid-template-columns: 1.15fr .85fr; gap: 40px; align-items: center; }
+  .brand { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+  .brand img { width: 56px; height: 56px; border-radius: 15px; box-shadow: 0 6px 20px rgba(240,54,95,.3); }
+  .brand span { font-weight: 700; font-size: 22px; letter-spacing: .2px; }
+  h1 { font-size: clamp(32px, 6vw, 52px); line-height: 1.12; margin: 0 0 16px; letter-spacing: -.5px; }
+  h1 em { font-style: normal; background: linear-gradient(90deg, var(--accent2), var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lead { color: var(--muted); font-size: 18px; margin: 0 0 28px; max-width: 34em; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px; padding: 14px 26px; border-radius: 999px;
+    background: var(--accent); color: var(--on-accent); text-decoration: none; font-weight: 600; font-size: 17px;
+    box-shadow: 0 8px 24px rgba(240,54,95,.28); transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 28px rgba(240,54,95,.36); }
+  .btn:active { transform: scale(.97); }
+  .btn svg { width: 20px; height: 20px; }
+  .meta { color: var(--muted); font-size: 14px; }
+  .meta b { color: var(--fg); font-weight: 600; }
+
+  /* The real cover-screen screenshot (948 × 1048), framed like the FlexWindow. */
+  .device { justify-self: center; width: min(400px, 86vw); }
+  .device img { display: block; width: 100%; height: auto; filter: drop-shadow(0 24px 40px rgba(0,0,0,.18)); }
+
+  section { padding: 36px 0; }
+  h2 { font-size: 26px; margin: 0 0 20px; letter-spacing: -.2px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .grid.two { grid-template-columns: repeat(2, 1fr); }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 22px; }
+  .card h3 { margin: 10px 0 6px; font-size: 17px; }
+  .card p { margin: 0; color: var(--muted); font-size: 15px; }
+  .card p.note { margin-top: 10px; font-size: 13px; color: var(--accent); }
+  .ico { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: linear-gradient(160deg, var(--accent2), var(--accent)); color: #fff; }
+  .ico svg { width: 22px; height: 22px; }
+
+  .tips { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 6px 22px; }
+  .tips p { margin: 14px 0; color: var(--muted); }
+  .tips p + p { border-top: 1px solid var(--line); padding-top: 14px; }
+  .tips b { color: var(--fg); margin-right: 10px; }
+  .tips a { color: var(--accent); text-decoration: none; }
+  .tips a:hover { text-decoration: underline; }
+  .notes { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 20px 22px; }
+  .notes h3 { margin: 0 0 8px; font-size: 17px; }
+  .notes ul { margin: 0; padding-left: 20px; color: var(--muted); }
+  footer { padding: 28px 0 56px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); margin-top: 24px; }
+  footer p { margin: 0 0 10px; }
+  footer a { color: inherit; }
+  .oss summary { cursor: pointer; color: var(--fg); font-weight: 600; margin: 6px 0 10px; }
+  .oss ul { margin: 0 0 12px; padding-left: 20px; }
+  .oss li { margin: 4px 0; }
+
+  @media (max-width: 760px) {
+    header.hero { grid-template-columns: 1fr; padding-top: 44px; gap: 36px; }
+    .grid, .grid.two { grid-template-columns: 1fr; }
+    .device { width: min(360px, 86vw); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div>
+      <div class="brand"><img src="icon.svg" alt=""><span>Flip Music</span></div>
+      <h1>屏幕再小，<br><em>听歌也尽兴。</em></h1>
+      <p class="lead">专门给折叠屏小外屏做的音乐播放器。合着手机也能看歌词、切歌，打开手机就是完整的大屏界面。YouTube Music 和网易云音乐都能用。</p>
+      <div class="cta">
+        <a class="btn" id="dl" href="download/latest.apk">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a1 1 0 0 1 1 1v9.59l3.3-3.3a1 1 0 1 1 1.4 1.42l-5 5a1 1 0 0 1-1.4 0l-5-5a1 1 0 1 1 1.4-1.42l3.3 3.3V4a1 1 0 0 1 1-1zM5 19h14a1 1 0 1 1 0 2H5a1 1 0 1 1 0-2z"/></svg>
+          下载 Android 版
+        </a>
+        <span class="meta" id="meta">Android 10 及以上</span>
+      </div>
+    </div>
+    <div class="device">
+      <img src="device.png" width="458" height="519" alt="Flip Music 在折叠屏手机外屏上的正在播放界面：歌词、歌曲信息，以及环绕镜头的进度环">
+    </div>
+  </header>
+
+  <section>
+    <div class="grid two">
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 7a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zm2 0v6h9V7zm13-2h1a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-7a2 2 0 0 1-2-2v-2h2v2h7V7h-1z"/></svg></div>
+        <h3>不同外屏都合适</h3>
+        <p>每家折叠屏的外屏比例都不一样，有偏宽的，有偏长的。Flip Music 会按不同屏幕比例重新排版，不会只是把大屏界面缩小塞进去。</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3z"/></svg></div>
+        <h3>双平台适配</h3>
+        <p>在国内用网易云，在国外用 YouTube Music，设置里随时切换，人在哪都有歌听。App 从不保存密码。</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>三星 Galaxy Z Flip7 / Flip8 专属特性</h2>
+    <div class="grid two">
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 3h12a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3zm0 2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z"/></svg></div>
+        <h3>1:1 外屏适配</h3>
+        <p>UI 专为 Galaxy Z Flip7 / Flip8 优化，不浪费 4.1 英寸外屏一丁点角落。</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8zm0-13a5 5 0 1 0 5 5 5 5 0 0 0-5-5z"/></svg></div>
+        <h3>跑道形播放进度条</h3>
+        <p>官方做不到的，我们来做：不浪费外屏任何一块空间，不只是摄像头左侧区域，甚至摄像头周围。</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="tips">
+      <p><b>小提示</b>三星手机要在外屏打开，先到 设置 › 高级功能 › 实验室 › 外屏上允许的应用，把 Flip Music 加进去。</p>
+      <p><b>反馈</b>遇到问题或者有想法，欢迎发邮件到 <a href="mailto:233.rinne@gmail.com">233.rinne@gmail.com</a>。</p>
+    </div>
+  </section>
+
+  <section id="changelog" hidden>
+    <div class="notes">
+      <h3 id="notes-title">更新内容</h3>
+      <ul id="notes"></ul>
+    </div>
+  </section>
+
+  <footer>
+    <p>Flip Music 是非官方第三方客户端，与 Google、YouTube、网易云音乐、Samsung 无关。</p>
+    <p>关于网易云音乐：Flip Music 只使用网易云音乐网页版的官方接口。不登录账号时，能听的内容和网页版游客模式完全一样；需要会员的歌，要登录开通了会员的账号才能播放。我们不存在“通过技术手段破解、绕开限制，直接提供网易云音乐享有版权的音乐作品内容”的行为 :)</p>
+    <details class="oss">
+      <summary>开源许可与参考资料</summary>
+      <p>Flip Music 用到了这些开源项目，感谢它们的作者：</p>
+      <ul>
+        <li><a href="https://github.com/TeamNewPipe/NewPipeExtractor">NewPipe Extractor</a>：YouTube 音频流解析 · GPL-3.0</li>
+        <li><a href="https://developer.android.com/jetpack/androidx">Android Jetpack</a>（Compose、Media3 / ExoPlayer、DataStore、WindowManager、Palette 等）· Apache-2.0</li>
+        <li><a href="https://github.com/JetBrains/kotlin">Kotlin</a>、<a href="https://github.com/Kotlin/kotlinx.coroutines">kotlinx.coroutines</a>、<a href="https://github.com/Kotlin/kotlinx.serialization">kotlinx.serialization</a> · Apache-2.0</li>
+        <li><a href="https://github.com/square/okhttp">OkHttp</a>：网络请求 · Apache-2.0</li>
+        <li><a href="https://github.com/coil-kt/coil">Coil</a>：图片加载 · Apache-2.0</li>
+        <li><a href="https://fonts.google.com/icons">Material Icons</a>：图标 · Apache-2.0</li>
+      </ul>
+      <p>参考资料：</p>
+      <ul>
+        <li><a href="https://github.com/Binaryify/NeteaseCloudMusicApi">NeteaseCloudMusicApi</a>：网易云网页版接口与加密方式的参考 · MIT</li>
+        <li><a href="https://lrclib.net">LRCLIB</a>：开放的歌词数据库，用于 YouTube Music 歌曲的歌词</li>
+      </ul>
+    </details>
+  </footer>
+</div>
+<script>
+  // Fill in the latest version from the same manifest the app checks.
+  fetch('update.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(u => {
+    if (!u) return;
+    const mb = u.size ? ' · ' + (u.size / 1048576).toFixed(1) + ' MB' : '';
+    document.getElementById('meta').innerHTML = '最新版本 <b>' + u.versionName + '</b>' + mb + ' · Android 10+';
+    if (u.url) document.getElementById('dl').href = u.url;
+    const notes = (u.notes || '').split('\n').map(s => s.replace(/^[-·•]\s*/, '').trim()).filter(Boolean);
+    if (notes.length) {
+      document.getElementById('notes-title').textContent = u.versionName + ' 更新内容';
+      const ul = document.getElementById('notes');
+      notes.forEach(n => { const li = document.createElement('li'); li.textContent = n; ul.appendChild(li); });
+      document.getElementById('changelog').hidden = false;
+    }
+  }).catch(() => {});
+</script>
+</body>
+</html>

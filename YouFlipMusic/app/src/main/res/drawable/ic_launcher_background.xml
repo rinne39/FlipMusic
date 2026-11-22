@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One UI-style: one soft, bright colour with a gentle top-to-bottom gradient. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient android:startColor="#FFFF7A86" android:endColor="#FFF0365F" android:angle="270" />
+</shape>

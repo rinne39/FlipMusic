@@ -1,0 +1,17 @@
+# Build output
+**/build/
+**/.gradle/
+**/.kotlin/
+dist/
+
+# Local machine settings
+**/local.properties
+*.iml
+.idea/
+.DS_Store
+.claude/
+
+# Signing keys never go in the repo
+*.jks
+*.keystore
+keystore.properties

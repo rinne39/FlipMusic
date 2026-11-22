@@ -1,0 +1,8 @@
+{
+  "versionCode": 98,
+  "versionName": "1.2.6",
+  "url": "https://player.pjsk.store/download/FlipMusic-1.2.6.apk",
+  "notes": "新增 App 内检查更新，以后有新版本会直接提示\n网易云所有请求改为通过网页版发出，收藏更稳定\n展开模式：播放页切换歌词和播放列表有过渡动画\n设置里可以打开「显示不全时自动滚动」\n外屏竖屏模式重新调整了按钮和文字大小",
+  "size": 3676251,
+  "sha256": "65132f753f6a3196b5b3bb58fc11e4461e45d611e3f6ba65a4918acd5c174bbd"
+}
