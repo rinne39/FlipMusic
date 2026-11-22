@@ -13,8 +13,8 @@ android {
         applicationId = "rinne.flipmusic"
         minSdk = 26
         targetSdk = 36
-        versionCode = 98
-        versionName = "1.2.6"
+        versionCode = 99
+        versionName = "1.0"
     }
 
     buildTypes {
