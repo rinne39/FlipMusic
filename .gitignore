@@ -9,7 +9,6 @@ dist/
 *.iml
 .idea/
 .DS_Store
-.claude/
 
 # Signing keys never go in the repo
 *.jks
