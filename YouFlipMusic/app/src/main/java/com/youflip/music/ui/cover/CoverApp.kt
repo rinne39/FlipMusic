@@ -1292,15 +1292,55 @@ private fun CoverCollection(vm: MainViewModel, load: Load<com.youflip.music.data
                 LazyColumn(contentPadding = PaddingValues(bottom = CoverScreenSpec.LIST_BOTTOM_PADDING)) {
                     item {
                         // Header: artwork on the left; subtitle and the two play buttons stacked to its right.
-                        Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                            if (d.collection.thumbnail != null) {
-                                Artwork(com.youflip.music.data.Thumbs.hd(d.collection.thumbnail), Modifier.size(120.dp), RoundedCornerShape(12.dp))
-                                Spacer(Modifier.width(12.dp))
+                        // In the narrow portrait window that column would squeeze the buttons, so there the
+                        // buttons move under the artwork and share the full width.
+                        val hasArt = d.collection.thumbnail != null
+                        val playAll: @Composable (Modifier) -> Unit = { m ->
+                            Button(onClick = { vm.playList(d.songs, 0); onPlayed() }, enabled = d.songs.isNotEmpty(), modifier = m,
+                                contentPadding = PaddingValues(horizontal = 12.dp)) {
+                                Icon(Icons.Rounded.PlayArrow, null, Modifier.size(20.dp)); Spacer(Modifier.width(6.dp)); Text("播放全部", maxLines = 1, softWrap = false)
                             }
-                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                if (d.collection.subtitle.isNotBlank()) Text(d.collection.subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.labelLarge)
-                                Button(onClick = { vm.playList(d.songs, 0); onPlayed() }, enabled = d.songs.isNotEmpty(), modifier = Modifier.fillMaxWidth()) { Icon(Icons.Rounded.PlayArrow, null); Text("播放全部", maxLines = 1) }
-                                FilledTonalButton(onClick = { vm.playList(d.songs.shuffled(), 0); onPlayed() }, enabled = d.songs.isNotEmpty(), modifier = Modifier.fillMaxWidth()) { Icon(Icons.Rounded.Shuffle, null); Text("随机播放", maxLines = 1) }
+                        }
+                        val shuffleAll: @Composable (Modifier) -> Unit = { m ->
+                            FilledTonalButton(onClick = { vm.playList(d.songs.shuffled(), 0); onPlayed() }, enabled = d.songs.isNotEmpty(), modifier = m,
+                                contentPadding = PaddingValues(horizontal = 12.dp)) {
+                                Icon(Icons.Rounded.Shuffle, null, Modifier.size(20.dp)); Spacer(Modifier.width(6.dp)); Text("随机播放", maxLines = 1, softWrap = false)
+                            }
+                        }
+                        val subtitle: @Composable () -> Unit = {
+                            if (d.collection.subtitle.isNotBlank()) Text(d.collection.subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.labelLarge)
+                        }
+                        BoxWithConstraints(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 6.dp)) {
+                            val full = maxWidth
+                            val side = full - (if (hasArt) 132.dp else 0.dp)
+                            if (side >= 150.dp) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    if (hasArt) {
+                                        Artwork(com.youflip.music.data.Thumbs.hd(d.collection.thumbnail), Modifier.size(120.dp), RoundedCornerShape(12.dp))
+                                        Spacer(Modifier.width(12.dp))
+                                    }
+                                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        subtitle()
+                                        playAll(Modifier.fillMaxWidth())
+                                        shuffleAll(Modifier.fillMaxWidth())
+                                    }
+                                }
+                            } else {
+                                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        if (hasArt) {
+                                            Artwork(com.youflip.music.data.Thumbs.hd(d.collection.thumbnail), Modifier.size(96.dp), RoundedCornerShape(12.dp))
+                                            Spacer(Modifier.width(12.dp))
+                                        }
+                                        Box(Modifier.weight(1f)) { subtitle() }
+                                    }
+                                    // Side by side when each button still fits its icon and label, else one per row.
+                                    if (full >= 240.dp) Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        playAll(Modifier.weight(1f)); shuffleAll(Modifier.weight(1f))
+                                    } else {
+                                        playAll(Modifier.fillMaxWidth()); shuffleAll(Modifier.fillMaxWidth())
+                                    }
+                                }
                             }
                         }
                     }
