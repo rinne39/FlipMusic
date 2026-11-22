@@ -8,7 +8,7 @@
 
 <p align="center"><img src="docs/screenshot.svg" width="360" alt="Flip Music 在 Galaxy Z Flip7 外屏上的正在播放界面"></p>
 
-<p align="center"><sub>截图中的歌曲翻唱与插画版权归《世界计划 彩色舞台 feat. 初音未来》（SEGA / Colorful Palette / Crypton Future Media）及原曲作者等相关权利方所有；Galaxy Z Flip7 外观设计归 Samsung 所有。仅用于展示界面效果。</sub></p>
+<p align="center"><sub>截图中的歌曲翻唱与插画版权归《世界计划 彩色舞台 feat. 初音未来》（SEGA / Colorful Palette / Crypton Future Media）及原曲作者等相关权利方所有；Galaxy Z Flip 系列外观设计归 Samsung 所有。仅用于展示界面效果。</sub></p>
 
 ## 不同外屏都合适
 
