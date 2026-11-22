@@ -6,6 +6,10 @@
 
 官网与下载：<https://player.pjsk.store>
 
+<p align="center"><img src="docs/screenshot.svg" width="360" alt="Flip Music 在 Galaxy Z Flip7 外屏上的正在播放界面"></p>
+
+<p align="center"><sub>截图中的歌曲翻唱与插画版权归《世界计划 彩色舞台 feat. 初音未来》（SEGA / Colorful Palette / Crypton Future Media）及原曲作者等相关权利方所有；Galaxy Z Flip7 外观设计归 Samsung 所有。仅用于展示界面效果。</sub></p>
+
 ## 不同外屏都合适
 
 每家折叠屏的外屏比例都不一样，有偏宽的，有偏长的。Flip Music 会按不同屏幕比例重新排版，不会只是把大屏界面缩小塞进去。
