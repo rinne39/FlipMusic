@@ -7,82 +7,102 @@
 <meta name="description" content="专为小折叠设备外屏模式适配的音乐播放器。支持 YouTube Music 与网易云音乐。">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <style>
+  /* Monochrome, dot-matrix look: grey paper, black type, one red signal colour. */
   :root {
-    --bg: #fbf7f8; --fg: #1b1416; --muted: #6f6266; --card: #ffffff; --line: #eee3e6;
-    --accent: #f0365f; --accent2: #ff7a86; --on-accent: #fff;
+    --bg: #f1f1ef; --fg: #0a0a0a; --muted: #6b6b6b; --card: #ffffff; --line: #d9d9d6;
+    --dot: rgba(0,0,0,.09); --red: #d71921; --btn: #0a0a0a; --on-btn: #fff;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
   }
   @media (prefers-color-scheme: dark) {
-    :root { --bg: #0e0b0c; --fg: #f6eef0; --muted: #a89a9e; --card: #1a1517; --line: #2a2225; }
+    :root { --bg: #000; --fg: #f5f5f5; --muted: #8c8c8c; --card: #0e0e0e; --line: #262626;
+      --dot: rgba(255,255,255,.08); --red: #ff3a3a; --btn: #f5f5f5; --on-btn: #000; }
   }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
   body {
-    margin: 0; background: var(--bg); color: var(--fg);
-    font: 16px/1.6 -apple-system, "SF Pro Text", "PingFang SC", "HarmonyOS Sans SC", "MiSans", "Noto Sans SC", system-ui, sans-serif;
+    margin: 0; color: var(--fg); background-color: var(--bg);
+    background-image: radial-gradient(var(--dot) 1.1px, transparent 1.3px); background-size: 16px 16px;
+    font: 16px/1.65 -apple-system, "SF Pro Text", "PingFang SC", "HarmonyOS Sans SC", "MiSans", "Noto Sans SC", system-ui, sans-serif;
   }
-  .wrap { max-width: 980px; margin: 0 auto; padding: 0 20px; }
-  header.hero { padding: 72px 0 40px; display: grid; grid-template-columns: 1.15fr .85fr; gap: 40px; align-items: center; }
-  .brand { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
-  .brand img { width: 56px; height: 56px; border-radius: 15px; box-shadow: 0 6px 20px rgba(240,54,95,.3); }
-  .brand span { font-weight: 700; font-size: 22px; letter-spacing: .2px; }
-  h1 { font-size: clamp(32px, 6vw, 52px); line-height: 1.12; margin: 0 0 16px; letter-spacing: -.5px; }
-  h1 em { font-style: normal; background: linear-gradient(90deg, var(--accent2), var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .lead { color: var(--muted); font-size: 18px; margin: 0 0 28px; max-width: 34em; }
-  .cta { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  a { color: inherit; }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+  .mono { font-family: var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+  .dotm { display: inline-block; vertical-align: middle; }
+  .dotm circle.on { fill: currentColor; }
+  .dotm circle.off { fill: currentColor; opacity: .1; }
+
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 26px 0; }
+  nav .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  nav .logo img { width: 30px; height: 30px; border-radius: 8px; }
+  nav .logo .dotm { height: 18px; }
+  nav .gh { font-size: 12px; text-decoration: none; border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; background: var(--card); }
+  nav .gh:hover { border-color: var(--fg); }
+
+  header.hero { padding: 40px 0 48px; display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: center; }
+  .kicker { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); margin-bottom: 22px; }
+  .kicker i { width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
+  h1 { font-size: clamp(36px, 6.4vw, 60px); line-height: 1.1; margin: 0 0 20px; font-weight: 600; letter-spacing: -.02em; }
+  h1 em { font-style: normal; color: var(--muted); }
+  .lead { font-size: 18px; margin: 0 0 32px; max-width: 30em; }
+  .cta { display: flex; flex-wrap: wrap; gap: 14px 18px; align-items: center; }
   .btn {
-    display: inline-flex; align-items: center; gap: 10px; padding: 14px 26px; border-radius: 999px;
-    background: var(--accent); color: var(--on-accent); text-decoration: none; font-weight: 600; font-size: 17px;
-    box-shadow: 0 8px 24px rgba(240,54,95,.28); transition: transform .15s ease, box-shadow .15s ease;
+    display: inline-flex; align-items: center; gap: 10px; padding: 15px 26px; border-radius: 999px;
+    background: var(--btn); color: var(--on-btn); text-decoration: none; font-weight: 600; font-size: 16px;
+    transition: transform .15s ease;
   }
-  .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 28px rgba(240,54,95,.36); }
   .btn:active { transform: scale(.97); }
-  .btn svg { width: 20px; height: 20px; }
-  .meta { color: var(--muted); font-size: 14px; }
+  .btn svg { width: 18px; height: 18px; }
+  .meta { color: var(--muted); font-size: 12px; }
   .meta b { color: var(--fg); font-weight: 600; }
 
-  /* The real cover-screen screenshot (948 × 1048), framed like the FlexWindow. */
-  .device { justify-self: center; width: min(400px, 86vw); }
-  .device img { display: block; width: 100%; height: auto; filter: drop-shadow(0 24px 40px rgba(0,0,0,.18)); }
+  .device { justify-self: center; width: min(400px, 86vw); position: relative; }
+  .device::before { content: ""; position: absolute; inset: 6% -2% -2%; border: 1px dashed var(--line); border-radius: 50%; }
+  .device img { position: relative; display: block; width: 100%; height: auto; filter: drop-shadow(0 20px 36px rgba(0,0,0,.18)); }
 
-  section { padding: 36px 0; }
-  h2 { font-size: 26px; margin: 0 0 20px; letter-spacing: -.2px; }
-  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-  .grid.two { grid-template-columns: repeat(2, 1fr); }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 22px; }
-  .card h3 { margin: 10px 0 6px; font-size: 17px; }
+  section { padding: 28px 0; }
+  .head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; border-top: 1px solid var(--fg); padding-top: 14px; margin-bottom: 18px; }
+  h2 { font-size: 22px; margin: 0; font-weight: 600; letter-spacing: -.01em; }
+  .head .mono { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 22px 24px 24px; }
+  .card .top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 34px; }
+  .card .top .dotm { height: 14px; color: var(--muted); }
+  .card .top svg.ico { width: 22px; height: 22px; }
+  .card h3 { margin: 0 0 6px; font-size: 18px; font-weight: 600; }
   .card p { margin: 0; color: var(--muted); font-size: 15px; }
-  .card p.note { margin-top: 10px; font-size: 13px; color: var(--accent); }
-  .ico { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: linear-gradient(160deg, var(--accent2), var(--accent)); color: #fff; }
-  .ico svg { width: 22px; height: 22px; }
 
-  .tips { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 6px 22px; }
-  .tips p { margin: 14px 0; color: var(--muted); }
-  .tips p + p { border-top: 1px solid var(--line); padding-top: 14px; }
-  .tips b { color: var(--fg); margin-right: 10px; }
-  .tips a { color: var(--accent); text-decoration: none; }
-  .tips a:hover { text-decoration: underline; }
-  .notes { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 20px 22px; }
-  .notes h3 { margin: 0 0 8px; font-size: 17px; }
-  .notes ul { margin: 0; padding-left: 20px; color: var(--muted); }
-  footer { padding: 28px 0 56px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); margin-top: 24px; }
+  .rows { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 0 24px; }
+  .rows p { margin: 0; padding: 18px 0; display: grid; grid-template-columns: 7em 1fr; gap: 12px; color: var(--muted); }
+  .rows p + p { border-top: 1px solid var(--line); }
+  .rows b { color: var(--fg); font: 600 12px/2.1 var(--mono); letter-spacing: .06em; }
+  .rows a { color: var(--fg); text-underline-offset: 3px; }
+  .rows a:hover { color: var(--red); }
+  .notes ul { margin: 0; padding: 18px 0 18px 20px; color: var(--muted); }
+
+  footer { padding: 26px 0 60px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); margin-top: 28px; }
   footer p { margin: 0 0 10px; }
-  footer a { color: inherit; }
-  .oss summary { cursor: pointer; color: var(--fg); font-weight: 600; margin: 6px 0 10px; }
+  footer a:hover { color: var(--fg); }
+  .oss summary { cursor: pointer; color: var(--fg); margin: 10px 0; font: 600 12px var(--mono); letter-spacing: .06em; }
   .oss ul { margin: 0 0 12px; padding-left: 20px; }
   .oss li { margin: 4px 0; }
 
   @media (max-width: 760px) {
-    header.hero { grid-template-columns: 1fr; padding-top: 44px; gap: 36px; }
-    .grid, .grid.two { grid-template-columns: 1fr; }
-    .device { width: min(360px, 86vw); }
+    header.hero { grid-template-columns: 1fr; padding-top: 16px; gap: 40px; }
+    .grid { grid-template-columns: 1fr; }
+    .device { width: min(340px, 84vw); }
+    .rows p { grid-template-columns: 1fr; gap: 2px; }
   }
 </style>
 </head>
 <body>
 <div class="wrap">
+  <nav>
+    <a class="logo" href="./" aria-label="Flip Music"><img src="icon.svg" alt=""><span class="dotm" data-dot="FLIP MUSIC" data-off></span></a>
+    <a class="gh mono" href="https://github.com/rinne39/FlipMusic">GitHub ↗</a>
+  </nav>
   <header class="hero">
     <div>
-      <div class="brand"><img src="icon.svg" alt=""><span>Flip Music</span></div>
+      <div class="kicker mono"><i></i>Now playing</div>
       <h1>屏幕再小，<br><em>听歌也尽兴。</em></h1>
       <p class="lead">专为小折叠设备外屏模式适配的音乐播放器。</p>
       <div class="cta">
@@ -90,7 +110,7 @@
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a1 1 0 0 1 1 1v9.59l3.3-3.3a1 1 0 1 1 1.4 1.42l-5 5a1 1 0 0 1-1.4 0l-5-5a1 1 0 1 1 1.4-1.42l3.3 3.3V4a1 1 0 0 1 1-1zM5 19h14a1 1 0 1 1 0 2H5a1 1 0 1 1 0-2z"/></svg>
           下载 Android 版
         </a>
-        <span class="meta" id="meta">Android 10 及以上</span>
+        <span class="meta mono" id="meta">Android 10+</span>
       </div>
     </div>
     <div class="device">
@@ -98,15 +118,16 @@
     </div>
   </header>
 
-  <section>
-    <div class="grid two">
+<section>
+    <div class="head"><span class="mono">Features</span><span class="mono">01 — 02</span></div>
+    <div class="grid">
       <div class="card">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 7a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zm2 0v6h9V7zm13-2h1a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-7a2 2 0 0 1-2-2v-2h2v2h7V7h-1z"/></svg></div>
+        <div class="top"><span class="dotm" data-dot="01"></span><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="11" height="9" rx="2"/><rect x="16" y="4" width="5" height="16" rx="1.5"/></svg></div>
         <h3>不同外屏都合适</h3>
         <p>每家折叠屏的外屏比例都不一样，有偏宽的，有偏长的。Flip Music 会按不同屏幕比例重新排版，不会只是把大屏界面缩小塞进去。</p>
       </div>
       <div class="card">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3z"/></svg></div>
+        <div class="top"><span class="dotm" data-dot="02"></span><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V6l11-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg></div>
         <h3>双平台适配</h3>
         <p>在国内用网易云，在国外用 YouTube Music，设置里随时切换，人在哪都有歌听。App 从不保存密码。</p>
       </div>
@@ -114,15 +135,15 @@
   </section>
 
   <section>
-    <h2>三星 Galaxy Z Flip7 / Flip8 专属特性</h2>
-    <div class="grid two">
+    <div class="head"><h2>三星 Galaxy Z Flip7 / Flip8 专属特性</h2><span class="mono">03 — 04</span></div>
+    <div class="grid">
       <div class="card">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 3h12a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3zm0 2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z"/></svg></div>
+        <div class="top"><span class="dotm" data-dot="03"></span><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4"/></svg></div>
         <h3>1:1 外屏适配</h3>
         <p>UI 专为 Galaxy Z Flip7 / Flip8 优化，不浪费 4.1 英寸外屏一丁点角落。</p>
       </div>
       <div class="card">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8zm0-13a5 5 0 1 0 5 5 5 5 0 0 0-5-5z"/></svg></div>
+        <div class="top"><span class="dotm" data-dot="04"></span><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="10" rx="5"/><circle cx="8" cy="12" r="1.6"/><circle cx="13" cy="12" r="1.6"/></svg></div>
         <h3>跑道形播放进度条</h3>
         <p>官方做不到的，我们来做：不浪费外屏任何一块空间，不只是摄像头左侧区域，甚至摄像头周围。</p>
       </div>
@@ -130,27 +151,24 @@
   </section>
 
   <section>
-    <div class="tips">
-      <p><b>小提示</b>三星手机要在外屏打开，先到 设置 › 高级功能 › 实验室 › 外屏上允许的应用，把 Flip Music 加进去。</p>
-      <p><b>反馈</b>遇到问题或者有想法，欢迎发邮件到 <a href="mailto:233.rinne@gmail.com">233.rinne@gmail.com</a>。</p>
+    <div class="rows">
+      <p><b>小提示</b><span>三星手机要在外屏打开，先到 设置 › 高级功能 › 实验室 › 外屏上允许的应用，把 Flip Music 加进去。</span></p>
+      <p><b>反馈</b><span>遇到问题或者有想法，欢迎发邮件到 <a href="mailto:233.rinne@gmail.com">233.rinne@gmail.com</a>。</span></p>
     </div>
   </section>
 
   <section id="changelog" hidden>
-    <div class="notes">
-      <h3 id="notes-title">更新内容</h3>
-      <ul id="notes"></ul>
-    </div>
+    <div class="head"><h2 id="notes-title">更新内容</h2><span class="mono">Changelog</span></div>
+    <div class="rows notes"><ul id="notes"></ul></div>
   </section>
 
-  <footer>
+<footer>
     <p>Flip Music 是非官方第三方客户端，与 Google、YouTube、网易云音乐、Samsung 无关。</p>
     <p>关于网易云音乐：Flip Music 只使用网易云音乐网页版的官方接口。不登录账号时，能听的内容和网页版游客模式完全一样；需要会员的歌，要登录开通了会员的账号才能播放。我们不存在“通过技术手段破解、绕开限制，直接提供网易云音乐享有版权的音乐作品内容”的行为 :)</p>
     <p>源代码：<a href="https://github.com/rinne39/FlipMusic">GitHub · rinne39/FlipMusic</a>（GPL-3.0）</p>
     <details class="oss">
       <summary>开源许可与参考资料</summary>
-      <p>Flip Music 以 GPL-3.0 开源，源代码在 <a href="https://github.com/rinne39/FlipMusic">github.com/rinne39/FlipMusic</a>。</p>
-      <p>Flip Music 用到了这些开源项目，感谢它们的作者：</p>
+            <p>Flip Music 用到了这些开源项目，感谢它们的作者：</p>
       <ul>
         <li><a href="https://github.com/TeamNewPipe/NewPipeExtractor">NewPipe Extractor</a>：YouTube 音频流解析 · GPL-3.0</li>
         <li><a href="https://developer.android.com/jetpack/androidx">Android Jetpack</a>（Compose、Media3 / ExoPlayer、DataStore、WindowManager、Palette 等）· Apache-2.0</li>
@@ -168,11 +186,45 @@
   </footer>
 </div>
 <script>
+// Dot-matrix lettering (5×7 grid), drawn as SVG circles.
+(() => {
+  const G = {
+    F:['11111','10000','10000','11110','10000','10000','10000'], L:['10000','10000','10000','10000','10000','10000','11111'],
+    I:['111','010','010','010','010','010','111'], P:['11110','10001','10001','11110','10000','10000','10000'],
+    M:['10001','11011','10101','10101','10001','10001','10001'], U:['10001','10001','10001','10001','10001','10001','01110'],
+    S:['01111','10000','10000','01110','00001','00001','11110'], C:['01110','10001','10000','10000','10000','10001','01110'],
+    '0':['01110','10001','10011','10101','11001','10001','01110'], '1':['00100','01100','00100','00100','00100','00100','01110'],
+    '2':['01110','10001','00001','00010','00100','01000','11111'], '3':['11110','00001','00001','01110','00001','00001','11110'],
+    '4':['00010','00110','01010','10010','11111','00010','00010'], ' ':['00','00','00','00','00','00','00']
+  };
+  const NS = 'http://www.w3.org/2000/svg';
+  document.querySelectorAll('[data-dot]').forEach(el => {
+    const text = el.dataset.dot, off = el.hasAttribute('data-off');
+    const svg = document.createElementNS(NS, 'svg');
+    let x = 0, dots = '';
+    for (const ch of text) {
+      const g = G[ch] || G[' '];
+      g.forEach((row, y) => [...row].forEach((b, i) => {
+        if (b === '1' || off) dots += `<circle class="${b === '1' ? 'on' : 'off'}" cx="${x + i + .5}" cy="${y + .5}" r=".38"/>`;
+      }));
+      x += g[0].length + 1;
+    }
+    const w = x - 1;
+    svg.setAttribute('viewBox', `0 0 ${w} 7`);
+    svg.setAttribute('aria-hidden', 'true');
+    svg.innerHTML = dots;
+    svg.style.height = '100%'; svg.style.width = 'auto'; svg.style.display = 'block';
+    el.style.aspectRatio = `${w} / 7`;
+    el.appendChild(svg);
+  });
+})();
+</script>
+<script>
   // Fill in the latest version from the same manifest the app checks.
   fetch('update.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(u => {
     if (!u) return;
     const mb = u.size ? ' · ' + (u.size / 1048576).toFixed(1) + ' MB' : '';
-    document.getElementById('meta').innerHTML = '最新版本 <b>' + u.versionName + '</b>' + mb + ' · Android 10+';
+    document.getElementById('meta').innerHTML = 'v<b>' + u.versionName + '</b>' + mb + ' · Android 10+';
     if (u.url) document.getElementById('dl').href = u.url;
     const notes = (u.notes || '').split('\n').map(s => s.replace(/^[-·•]\s*/, '').trim()).filter(Boolean);
     if (notes.length) {
