@@ -60,7 +60,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     val library = yf.library
     val settings = yf.settings
 
-    val player = PlayerConnection(app, viewModelScope).also { it.connect() }
+    val external = yf.externalSessions
+    val player = PlayerConnection(app, viewModelScope, external).also { it.connect() }
 
     // ---- YouTube account ----
     private val accountStore = yf.account
@@ -181,7 +182,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             player.state.collect { s ->
                 val song = s.current
-                if (_home.value.radioSeed == null && song != null && song.title.isNotBlank() && song.isNetease == isNcm) loadRadio(song)
+                if (_home.value.radioSeed == null && song != null && song.title.isNotBlank() && !song.isExternal && song.isNetease == isNcm) loadRadio(song)
                 // Wait for real metadata (bare links get it a moment after playback starts).
                 if (song == null) { lyricsFor = null; _lyrics.value = Load.Idle }
                 else if (song.title.isNotBlank() && song.id != lyricsFor) {
@@ -197,6 +198,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     // ---- Playback shortcuts ----
     fun playList(songs: List<Song>, index: Int) = player.play(songs, index)
     fun toggleFavorite(song: Song) {
+        if (song.isExternal) {
+            _messages.tryEmit("这首歌在${player.state.value.externalApp ?: "其他 App"}里播放，请在那边收藏")
+            return
+        }
         if (song.isNetease != isNcm) {
             _messages.tryEmit("这首歌来自${if (song.isNetease) "网易云音乐" else "YouTube Music"}，切换到该音源后才能收藏")
             return

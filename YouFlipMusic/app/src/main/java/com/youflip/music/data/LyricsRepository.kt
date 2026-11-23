@@ -58,6 +58,14 @@ class LyricsRepository(
             return@withContext withAlbum
         }
 
+        // Another app's track: no id we can look up, so match by title / artist / length.
+        if (song.isExternal) {
+            val lrclib = runCatching { fromLrclib(song) }.getOrNull()
+            val result = lrclib?.takeIf { it.synced } ?: runCatching { fromNetease(song) }.getOrNull() ?: lrclib
+            if (result == null) misses += song.id else cache[song.id] = result
+            return@withContext result
+        }
+
         // YouTube Music first; third-party sites only when YTM has no synced lyrics.
         val ytm = runCatching { fromYouTubeMusic(song.id) }.getOrNull()
         val own = ytm?.lyrics

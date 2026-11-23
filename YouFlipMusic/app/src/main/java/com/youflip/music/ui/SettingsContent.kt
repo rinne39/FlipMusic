@@ -100,8 +100,14 @@ fun SettingsContent(vm: MainViewModel, compact: Boolean) {
         Toggle("显示不全时自动滚动", "歌名、歌手、专辑过长时滚动显示", marquee, vm::setCoverMarquee, pad)
         Toggle("自动电台续播", "队列快播完时自动加入相似歌曲", autoplay, vm::setAutoplay, pad)
         Toggle("高音质", "关闭后使用低码率以节省流量", hq, vm::setHighQuality, pad)
-        HorizontalDivider(Modifier.padding(vertical = 10.dp))
         val ctx = androidx.compose.ui.platform.LocalContext.current
+        // On / off both happen in the system's notification-access page.
+        val remoteOn by vm.external.enabled.collectAsState()
+        Toggle("控制其他音乐 App", "Apple Music、QQ 音乐等，需要通知使用权", remoteOn, {
+            runCatching { ctx.startActivity(vm.external.settingsIntent()) }
+                .recoverCatching { ctx.startActivity(android.content.Intent(android.provider.Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
+        }, pad)
+        HorizontalDivider(Modifier.padding(vertical = 10.dp))
         val version = remember { runCatching { ctx.packageManager.getPackageInfo(ctx.packageName, 0).versionName }.getOrNull().orEmpty() }
         val update by vm.update.collectAsState()
         // Tap to check for updates (player.pjsk.store); a newer build shows here and opens the update dialog.

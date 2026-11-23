@@ -39,6 +39,7 @@ class YouFlipApp : Application(), SingletonImageLoader.Factory {
     val updater by lazy { com.youflip.music.data.Updater(this, httpClient) }
     val library by lazy { LibraryStore(this) }
     val settings by lazy { SettingsStore(this) }
+    val externalSessions by lazy { com.youflip.music.playback.ExternalSessions(this) }
 
     override fun onCreate() {
         super.onCreate()

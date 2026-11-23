@@ -12,6 +12,8 @@ data class Song(
     val album: String? = null,
 ) {
     val isNetease get() = id.startsWith("ncm:")
+    /** Playing in another app (Apple Music, QQ 音乐…) that Flip Music only mirrors and controls. */
+    val isExternal get() = id.startsWith("ext:")
     val artworkHd get() = Thumbs.hd(thumbnail)
 }
 
